@@ -1,51 +1,690 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, height=1080" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        width: 1920px;
-        height: 1080px;
-        overflow: hidden;
-        background: #000;
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      id="root"
-      data-composition-id="main"
-      data-start="0"
-      data-duration="10"
-      data-width="1920"
-      data-height="1080"
-    >
-      
-      
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="node_modules/gsap/dist/gsap.min.js"></script>
+  <style>
+    /* ==============================================
+       PALETTE — Dark / Premium
+       bg:      #000814   surface: #001D3D
+       accent:  #003566   gold:    #FFC300
+       fg:      #FFFFFF   fg2:     #778DA9
+       ============================================== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-      <!--
-        Add your clips here. Example:
-        <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="1"
-             style="font-size: 64px; color: #fff; padding: 40px">
-          Hello World
+    body {
+      width: 1920px; height: 1080px;
+      overflow: hidden;
+      background: #000814;
+      font-family: "Inter", sans-serif;
+    }
+
+    #root {
+      position: relative;
+      width: 1920px; height: 1080px;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute; top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      overflow: hidden;
+      background: #000814;
+    }
+
+    /* ── SCENE 1: HERO ─────────────────────────────── */
+    #s1 { z-index: 1; }
+
+    /* 1200×1200 centered: left=360, top=-60 */
+    .s1-glow-c {
+      position: absolute; width: 1200px; height: 1200px;
+      left: 360px; top: -60px;
+      background: radial-gradient(circle, rgba(0,53,102,0.42) 0%, transparent 68%);
+      border-radius: 50%; pointer-events: none;
+    }
+    /* 600×600 bottom-right */
+    .s1-glow-br {
+      position: absolute; width: 600px; height: 600px;
+      right: 60px; bottom: -80px;
+      background: radial-gradient(circle, rgba(255,195,0,0.09) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s1-ghost {
+      position: absolute;
+      font-size: 380px; font-weight: 900;
+      color: rgba(0,53,102,0.20); letter-spacing: -8px;
+      bottom: -50px; right: 60px; line-height: 1; user-select: none;
+      pointer-events: none;
+    }
+    .s1-rule-top {
+      position: absolute; top: 56px; left: 0;
+      width: 1920px; height: 2px;
+      background: linear-gradient(to right, transparent 5%, rgba(255,195,0,0.28) 50%, transparent 95%);
+      transform-origin: center center;
+    }
+    .s1-rule-bot {
+      position: absolute; bottom: 56px; left: 0;
+      width: 1920px; height: 1px;
+      background: linear-gradient(to right, transparent 5%, rgba(255,255,255,0.07) 50%, transparent 95%);
+      transform-origin: center center;
+    }
+    .s1-meta-tl {
+      position: absolute; top: 74px; left: 120px;
+      font-size: 17px; font-weight: 500; letter-spacing: 4px;
+      text-transform: uppercase; color: #778DA9;
+    }
+    .s1-meta-br {
+      position: absolute; bottom: 70px; right: 120px;
+      font-size: 15px; letter-spacing: 3px;
+      text-transform: uppercase; color: #778DA9;
+    }
+    .s1-content {
+      display: flex; flex-direction: column; justify-content: center;
+      width: 100%; height: 100%; padding: 120px 160px; gap: 26px;
+    }
+    .s1-eyebrow {
+      font-size: 18px; font-weight: 600; letter-spacing: 6px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s1-title {
+      font-size: 118px; font-weight: 800; line-height: 1.0;
+      color: #FFFFFF; letter-spacing: -3px;
+    }
+    .s1-title-acc { color: #FFC300; }
+    .s1-divider {
+      width: 72px; height: 3px; background: #FFC300;
+      transform-origin: left center;
+    }
+    .s1-sub {
+      font-size: 34px; font-weight: 300; color: #778DA9;
+      max-width: 740px; line-height: 1.45;
+    }
+    .s1-tag {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 10px 22px;
+      border: 1px solid rgba(255,195,0,0.27); border-radius: 4px;
+      width: fit-content;
+    }
+    .s1-tag-dot { width: 8px; height: 8px; border-radius: 50%; background: #FFC300; }
+    .s1-tag-txt {
+      font-size: 16px; font-weight: 500; letter-spacing: 2px;
+      color: rgba(255,195,0,0.74); text-transform: uppercase;
+    }
+
+    /* ── SCENE 2: PROCESSING POWER ─────────────────── */
+    #s2 { z-index: 2; opacity: 0; }
+
+    /* 900×900 at left:-100, top:90 */
+    .s2-glow {
+      position: absolute; width: 900px; height: 900px;
+      left: -100px; top: 90px;
+      background: radial-gradient(circle, rgba(0,53,102,0.32) 0%, transparent 68%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s2-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,53,102,0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,53,102,0.09) 1px, transparent 1px);
+      background-size: 80px 80px; pointer-events: none;
+    }
+    .s2-meta {
+      position: absolute; bottom: 58px; right: 120px;
+      font-size: 14px; letter-spacing: 3px;
+      text-transform: uppercase; color: #778DA9;
+    }
+    .s2-content {
+      display: flex; height: 100%;
+      padding: 96px 120px 96px 160px; gap: 72px; align-items: center;
+    }
+    .s2-left { flex: 0 0 570px; display: flex; flex-direction: column; gap: 22px; }
+    .s2-eyebrow {
+      font-size: 16px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s2-heading {
+      font-size: 72px; font-weight: 800; line-height: 1.05;
+      letter-spacing: -1px; color: #FFFFFF;
+    }
+    .s2-divider { width: 56px; height: 2px; background: #FFC300; transform-origin: left center; }
+    .s2-body { font-size: 24px; font-weight: 300; color: #778DA9; line-height: 1.52; max-width: 510px; }
+    .s2-right { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+    .s2-row {
+      display: flex; align-items: center; gap: 24px;
+      padding: 24px 30px;
+      background: rgba(0,29,61,0.65);
+      border: 1px solid rgba(0,53,102,0.45); border-left: 3px solid #FFC300; border-radius: 4px;
+    }
+    .s2-row.rt { border-left-color: rgba(255,195,0,0.34); background: rgba(0,20,39,0.50); }
+    .s2-cnt {
+      font-size: 54px; font-weight: 900; color: #FFC300;
+      line-height: 1; min-width: 88px; font-variant-numeric: tabular-nums;
+    }
+    .s2-cnt.sm { font-size: 38px; color: rgba(255,195,0,0.58); }
+    .s2-info { display: flex; flex-direction: column; gap: 5px; }
+    .s2-cname { font-size: 26px; font-weight: 700; color: #FFFFFF; }
+    .s2-cname.sm { font-size: 22px; color: #E0E1DD; }
+    .s2-cspec { font-size: 17px; color: #778DA9; }
+    .s2-badge {
+      margin-left: auto; padding: 6px 13px; border-radius: 3px;
+      font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .s2-badge.perf { background: rgba(255,195,0,0.11); color: #FFC300; border: 1px solid rgba(255,195,0,0.27); }
+    .s2-badge.rt   { background: rgba(0,53,102,0.28);  color: #778DA9;  border: 1px solid rgba(119,141,169,0.24); }
+
+    /* ── SCENE 3: AI / NPU ──────────────────────────── */
+    #s3 { z-index: 3; opacity: 0; }
+
+    /* 800×800 at right:200, top:140 */
+    .s3-glow-g {
+      position: absolute; width: 800px; height: 800px;
+      right: 200px; top: 140px;
+      background: radial-gradient(circle, rgba(255,195,0,0.07) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    /* 700×700 at left:240, top:190 */
+    .s3-glow-b {
+      position: absolute; width: 700px; height: 700px;
+      left: 240px; top: 190px;
+      background: radial-gradient(circle, rgba(0,53,102,0.28) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s3-ghost {
+      position: absolute; font-size: 440px; font-weight: 900;
+      color: rgba(255,195,0,0.035); bottom: -80px; left: -10px;
+      line-height: 1; user-select: none; letter-spacing: -20px;
+    }
+    .s3-content {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%; padding: 100px 220px; gap: 30px; text-align: center;
+    }
+    .s3-eyebrow {
+      font-size: 16px; font-weight: 600; letter-spacing: 6px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s3-stat {
+      font-size: 164px; font-weight: 900; color: #FFFFFF;
+      letter-spacing: -6px; line-height: 1;
+    }
+    .s3-stat-unit { color: #FFC300; font-size: 96px; letter-spacing: -3px; }
+    .s3-rule {
+      width: 560px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,195,0,0.22), transparent);
+      transform-origin: center center;
+    }
+    .s3-label {
+      font-size: 36px; font-weight: 700; color: #E5E5E5;
+      letter-spacing: 3px; text-transform: uppercase;
+    }
+    .s3-sublabel { font-size: 27px; font-weight: 300; color: #778DA9; max-width: 840px; line-height: 1.52; }
+    .s3-compare {
+      display: inline-flex; align-items: center; gap: 16px;
+      padding: 14px 32px;
+      background: rgba(0,29,61,0.55); border: 1px solid rgba(255,195,0,0.20); border-radius: 6px;
+    }
+    .s3-cmp-arrow { font-size: 24px; color: #FFC300; font-weight: 700; }
+    .s3-cmp-txt { font-size: 22px; font-weight: 400; color: #E5E5E5; }
+    .s3-cmp-txt strong { color: #FFC300; font-weight: 700; }
+
+    /* ── SCENE 4: SECURITY ──────────────────────────── */
+    #s4 { z-index: 4; opacity: 0; }
+
+    /* 760×760 centered: left=580, top=160 */
+    .s4-glow {
+      position: absolute; width: 760px; height: 760px;
+      left: 580px; top: 160px;
+      background: radial-gradient(circle, rgba(0,53,102,0.30) 0%, transparent 68%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s4-content {
+      display: flex; height: 100%;
+      padding: 96px 160px; gap: 96px; align-items: center;
+    }
+    .s4-left { flex: 1; display: flex; flex-direction: column; gap: 22px; max-width: 620px; }
+    .s4-eyebrow {
+      font-size: 16px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s4-heading { font-size: 78px; font-weight: 800; line-height: 1.0; color: #FFFFFF; }
+    .s4-divider { width: 56px; height: 2px; background: #FFC300; transform-origin: left center; }
+    .s4-body { font-size: 24px; font-weight: 300; color: #778DA9; line-height: 1.55; }
+    .s4-right { flex: 0 0 610px; display: flex; flex-direction: column; gap: 14px; }
+    .s4-feat {
+      display: flex; align-items: flex-start; gap: 20px;
+      padding: 22px 26px;
+      background: rgba(0,29,61,0.50); border: 1px solid rgba(0,53,102,0.38); border-radius: 6px;
+    }
+    .s4-icon {
+      flex-shrink: 0; width: 42px; height: 42px;
+      background: rgba(255,195,0,0.10); border: 1px solid rgba(255,195,0,0.22); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .s4-hex { width: 18px; height: 18px; background: #FFC300; clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+    .s4-feat-body { display: flex; flex-direction: column; gap: 4px; }
+    .s4-feat-title { font-size: 21px; font-weight: 700; color: #FFFFFF; }
+    .s4-feat-desc  { font-size: 16px; font-weight: 400; color: #778DA9; }
+    .s4-cra {
+      margin-top: 6px; display: flex; align-items: center; gap: 14px;
+      padding: 15px 26px;
+      background: rgba(255,195,0,0.07); border: 1px solid rgba(255,195,0,0.22); border-radius: 6px;
+    }
+    .s4-cra-dot { width: 10px; height: 10px; border-radius: 50%; background: #FFC300; flex-shrink: 0; }
+    .s4-cra-txt { font-size: 17px; font-weight: 600; color: #FFC300; }
+
+    /* ── SCENE 5: APPLICATIONS ──────────────────────── */
+    #s5 { z-index: 5; opacity: 0; }
+
+    /* 1000×1000 at left:460, top:-200 */
+    .s5-glow {
+      position: absolute; width: 1000px; height: 1000px;
+      left: 460px; top: -200px;
+      background: radial-gradient(circle, rgba(0,53,102,0.22) 0%, transparent 68%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s5-content { display: flex; flex-direction: column; height: 100%; padding: 76px 160px 80px; gap: 42px; }
+    .s5-header { display: flex; flex-direction: column; gap: 12px; }
+    .s5-eyebrow {
+      font-size: 16px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s5-heading { font-size: 62px; font-weight: 800; line-height: 1.05; color: #FFFFFF; }
+    .s5-grid { display: flex; gap: 22px; flex: 1; align-items: stretch; }
+    .s5-card {
+      flex: 1; display: flex; flex-direction: column; gap: 14px;
+      padding: 30px 26px;
+      background: rgba(0,29,61,0.48);
+      border: 1px solid rgba(0,53,102,0.38); border-top: 2px solid rgba(255,195,0,0.38); border-radius: 4px;
+    }
+    .s5-card-icon {
+      width: 46px; height: 46px;
+      background: rgba(255,195,0,0.09); border: 1px solid rgba(255,195,0,0.18); border-radius: 4px;
+    }
+    .s5-card-name { font-size: 22px; font-weight: 700; color: #FFFFFF; line-height: 1.2; }
+    .s5-card-desc { font-size: 17px; font-weight: 300; color: #778DA9; line-height: 1.4; }
+
+    /* ── SCENE 6: CTA / OUTRO ───────────────────────── */
+    #s6 { z-index: 6; opacity: 0; }
+
+    /* 1400×1400 centered: left=260, top=-160 */
+    .s6-glow-c {
+      position: absolute; width: 1400px; height: 1400px;
+      left: 260px; top: -160px;
+      background: radial-gradient(circle, rgba(0,53,102,0.32) 0%, transparent 60%);
+      border-radius: 50%; pointer-events: none;
+    }
+    /* 500×500 centered: left=710, top=290 */
+    .s6-glow-in {
+      position: absolute; width: 500px; height: 500px;
+      left: 710px; top: 290px;
+      background: radial-gradient(circle, rgba(255,195,0,0.07) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .s6-rule-top {
+      position: absolute; top: 56px; left: 0;
+      width: 1920px; height: 1px;
+      background: linear-gradient(to right, transparent 5%, rgba(255,195,0,0.22) 50%, transparent 95%);
+      transform-origin: center center;
+    }
+    .s6-rule-bot {
+      position: absolute; bottom: 56px; left: 0;
+      width: 1920px; height: 1px;
+      background: linear-gradient(to right, transparent 5%, rgba(255,195,0,0.22) 50%, transparent 95%);
+      transform-origin: center center;
+    }
+    .s6-content {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%; padding: 120px 220px; gap: 26px; text-align: center;
+    }
+    .s6-eyebrow {
+      font-size: 16px; font-weight: 600; letter-spacing: 6px;
+      text-transform: uppercase; color: #FFC300;
+    }
+    .s6-title { font-size: 94px; font-weight: 800; line-height: 1.05; letter-spacing: -2px; color: #FFFFFF; }
+    .s6-title-acc { color: #FFC300; }
+    .s6-divider { width: 72px; height: 2px; background: rgba(255,195,0,0.48); transform-origin: center center; }
+    .s6-sub { font-size: 28px; font-weight: 300; color: #778DA9; max-width: 840px; line-height: 1.52; }
+    .s6-brand { font-size: 18px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+    .s6-url { font-size: 16px; letter-spacing: 2px; color: #778DA9; }
+  </style>
+</head>
+<body>
+  <div id="root"
+       data-composition-id="verdin-imx95"
+       data-width="1920"
+       data-height="1080"
+       data-start="0"
+       data-duration="33">
+
+    <!-- ══════════════════════════════════════════════
+         SCENE 1 — Hero
+         ══════════════════════════════════════════════ -->
+    <div id="s1" class="scene">
+      <div class="s1-glow-c" data-layout-allow-overflow></div>
+      <div class="s1-glow-br" data-layout-allow-overflow></div>
+      <div class="s1-ghost" data-layout-allow-overflow data-layout-ignore aria-hidden="true">95</div>
+      <div class="s1-rule-top"></div>
+      <div class="s1-rule-bot"></div>
+      <div class="s1-meta-tl">Toradex · Verdin Family</div>
+      <div class="s1-content">
+        <div id="s1-eyebrow" class="s1-eyebrow">System on Module</div>
+        <div id="s1-title" class="s1-title">Verdin<br><span class="s1-title-acc">iMX95</span></div>
+        <div id="s1-divider" class="s1-divider"></div>
+        <div id="s1-sub" class="s1-sub">Where edge computing meets intelligence</div>
+        <div id="s1-tag" class="s1-tag">
+          <div class="s1-tag-dot"></div>
+          <div class="s1-tag-txt">NXP i.MX 95 · Verdin Form Factor</div>
         </div>
-      -->
+      </div>
+      <div class="s1-meta-br">toradex.com</div>
     </div>
 
-    <script>
-      window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true });
-      // Example: tl.from("#title", { opacity: 0, y: -50, duration: 1 }, 0);
-      window.__timelines["main"] = tl;
-    </script>
-  </body>
+    <!-- ══════════════════════════════════════════════
+         SCENE 2 — Processing Power
+         ══════════════════════════════════════════════ -->
+    <div id="s2" class="scene">
+      <div class="s2-glow" data-layout-allow-overflow></div>
+      <div class="s2-grid" data-layout-allow-overflow></div>
+      <div class="s2-content">
+        <div class="s2-left">
+          <div id="s2-eyebrow" class="s2-eyebrow">Processing Power</div>
+          <div id="s2-heading" class="s2-heading">Multi-Core<br>Architecture</div>
+          <div id="s2-divider" class="s2-divider"></div>
+          <div id="s2-body" class="s2-body">Purpose-built for mission-critical edge workloads — combining performance with real-time responsiveness.</div>
+        </div>
+        <div class="s2-right">
+          <div id="s2-r1" class="s2-row">
+            <div class="s2-cnt">6×</div>
+            <div class="s2-info">
+              <div class="s2-cname">ARM Cortex-A55</div>
+              <div class="s2-cspec">1.8 GHz · Application Cores</div>
+            </div>
+            <div class="s2-badge perf">High Performance</div>
+          </div>
+          <div id="s2-r2" class="s2-row rt">
+            <div class="s2-cnt sm">M7</div>
+            <div class="s2-info">
+              <div class="s2-cname sm">ARM Cortex-M7</div>
+              <div class="s2-cspec">800 MHz · Real-Time Core</div>
+            </div>
+            <div class="s2-badge rt">Real-Time</div>
+          </div>
+          <div id="s2-r3" class="s2-row rt">
+            <div class="s2-cnt sm">M33</div>
+            <div class="s2-info">
+              <div class="s2-cname sm">ARM Cortex-M33</div>
+              <div class="s2-cspec">333 MHz · Safety Domain</div>
+            </div>
+            <div class="s2-badge rt">Safety</div>
+          </div>
+        </div>
+      </div>
+      <div class="s2-meta">02 / Architecture</div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SCENE 3 — AI / NPU
+         ══════════════════════════════════════════════ -->
+    <div id="s3" class="scene">
+      <div class="s3-glow-g"></div>
+      <div class="s3-glow-b"></div>
+      <div class="s3-ghost" data-layout-allow-overflow data-layout-ignore aria-hidden="true">AI</div>
+      <div class="s3-content">
+        <div id="s3-eyebrow" class="s3-eyebrow">Neural Processing Unit</div>
+        <div id="s3-stat" class="s3-stat">2<span class="s3-stat-unit"> TOPS</span></div>
+        <div id="s3-rule" class="s3-rule"></div>
+        <div id="s3-label" class="s3-label">On-Device AI Inference</div>
+        <div id="s3-sublabel" class="s3-sublabel">Run complex ML models at the edge — no cloud latency, no bandwidth constraints.</div>
+        <div id="s3-compare" class="s3-compare">
+          <div class="s3-cmp-arrow">↑</div>
+          <div class="s3-cmp-txt"><strong>2× the AI performance</strong> of Verdin iMX8M Plus</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SCENE 4 — Security
+         ══════════════════════════════════════════════ -->
+    <div id="s4" class="scene">
+      <div class="s4-glow"></div>
+      <div class="s4-content">
+        <div class="s4-left">
+          <div id="s4-eyebrow" class="s4-eyebrow">Security</div>
+          <div id="s4-heading" class="s4-heading">Built-In<br>Resilience</div>
+          <div id="s4-divider" class="s4-divider"></div>
+          <div id="s4-body" class="s4-body">Engineered for regulatory compliance and end-to-end system protection in the most demanding industries.</div>
+        </div>
+        <div class="s4-right">
+          <div id="s4-f1" class="s4-feat">
+            <div class="s4-icon"><div class="s4-hex"></div></div>
+            <div class="s4-feat-body">
+              <div class="s4-feat-title">Secure Boot</div>
+              <div class="s4-feat-desc">Verified firmware chain from silicon to software</div>
+            </div>
+          </div>
+          <div id="s4-f2" class="s4-feat">
+            <div class="s4-icon"><div class="s4-hex"></div></div>
+            <div class="s4-feat-body">
+              <div class="s4-feat-title">Hardware Cryptography</div>
+              <div class="s4-feat-desc">Accelerated encryption, trust provisioning &amp; attestation</div>
+            </div>
+          </div>
+          <div id="s4-f3" class="s4-feat">
+            <div class="s4-icon"><div class="s4-hex"></div></div>
+            <div class="s4-feat-body">
+              <div class="s4-feat-title">Run-Time Attestation</div>
+              <div class="s4-feat-desc">Continuous integrity verification across the system lifecycle</div>
+            </div>
+          </div>
+          <div id="s4-cra" class="s4-cra">
+            <div class="s4-cra-dot"></div>
+            <div class="s4-cra-txt">EU Cyber Resilience Act (CRA) Compliant</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SCENE 5 — Applications
+         ══════════════════════════════════════════════ -->
+    <div id="s5" class="scene">
+      <div class="s5-glow" data-layout-allow-overflow></div>
+      <div class="s5-content">
+        <div class="s5-header">
+          <div id="s5-eyebrow" class="s5-eyebrow">Target Applications</div>
+          <div id="s5-heading" class="s5-heading">Built for<br>Mission-Critical Edge</div>
+        </div>
+        <div class="s5-grid">
+          <div id="s5-c1" class="s5-card">
+            <div class="s5-card-icon"></div>
+            <div class="s5-card-name">Industrial Automation</div>
+            <div class="s5-card-desc">Precision control with real-time responsiveness</div>
+          </div>
+          <div id="s5-c2" class="s5-card">
+            <div class="s5-card-icon"></div>
+            <div class="s5-card-name">Robotics</div>
+            <div class="s5-card-desc">AI-driven autonomy with deterministic safety</div>
+          </div>
+          <div id="s5-c3" class="s5-card">
+            <div class="s5-card-icon"></div>
+            <div class="s5-card-name">Medical Equipment</div>
+            <div class="s5-card-desc">High-reliability computing in regulated environments</div>
+          </div>
+          <div id="s5-c4" class="s5-card">
+            <div class="s5-card-icon"></div>
+            <div class="s5-card-name">HMI &amp; Avionics</div>
+            <div class="s5-card-desc">Wide temperature range, proven durability</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SCENE 6 — CTA / Outro
+         ══════════════════════════════════════════════ -->
+    <div id="s6" class="scene">
+      <div class="s6-glow-c" data-layout-allow-overflow></div>
+      <div class="s6-glow-in"></div>
+      <div class="s6-rule-top"></div>
+      <div class="s6-rule-bot"></div>
+      <div class="s6-content">
+        <div id="s6-eyebrow" class="s6-eyebrow">Verdin iMX95</div>
+        <div id="s6-title" class="s6-title">Engineered for<br><span class="s6-title-acc">What's Next</span></div>
+        <div id="s6-divider" class="s6-divider"></div>
+        <div id="s6-sub" class="s6-sub">Six cores. 2 TOPS AI. Verdin ecosystem compatible. Ready for the hardest problems at the edge.</div>
+        <div id="s6-brand" class="s6-brand">Toradex</div>
+        <div id="s6-url" class="s6-url">toradex.com/verdin-imx95</div>
+      </div>
+    </div>
+
+  </div><!-- #root -->
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    // ── TIMING MAP ──────────────────────────────────────────────────
+    // S1   0.0 – 5.0   Hero
+    // T1→2 5.0          blur crossfade (medium, 0.5s overlap)
+    // S2   5.5 – 11.0  Processing Power
+    // T2→3 11.0         blur through (heavy, 0.8s)
+    // S3   11.8 – 17.0 AI / NPU
+    // T3→4 17.0         blur crossfade (medium, 0.5s)
+    // S4   17.5 – 22.5 Security
+    // T4→5 22.5         blur crossfade (medium, 0.5s)
+    // S5   23.0 – 28.0 Applications
+    // T5→6 28.0         crossfade (0.5s)
+    // S6   28.5 – 33.0 CTA / Outro → fade to black at 32.0
+    // ────────────────────────────────────────────────────────────────
+
+    // ══════════════════════════════════════════════
+    // SCENE 1 — Hero (0–5.0s)
+    // ══════════════════════════════════════════════
+    tl.fromTo(".s1-rule-top",  { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.0, ease: "power2.out"  }, 0.1);
+    tl.fromTo(".s1-rule-bot",  { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.0, ease: "expo.out"    }, 0.2);
+    tl.fromTo(".s1-glow-c",    { scale: 0.75, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.8, ease: "power1.out" }, 0.1);
+    tl.fromTo(".s1-glow-br",   { scale: 0.50, opacity: 0 }, { scale: 1, opacity: 1, duration: 2.0, ease: "power1.out" }, 0.4);
+    tl.fromTo(".s1-ghost",     { opacity: 0, x: 60 },        { opacity: 1, x: 0,     duration: 2.2, ease: "power1.out" }, 0.2);
+    tl.fromTo(".s1-meta-tl",   { opacity: 0, y: -16 },       { opacity: 1, y: 0,     duration: 0.5, ease: "power2.out" }, 0.5);
+    tl.fromTo(".s1-meta-br",   { opacity: 0 },               { opacity: 1,           duration: 0.5, ease: "power1.out" }, 1.8);
+    tl.fromTo("#s1-eyebrow",   { opacity: 0, x: -28 },       { opacity: 1, x: 0,     duration: 0.5, ease: "power3.out" }, 0.8);
+    tl.fromTo("#s1-title",     { opacity: 0, y: 56 },        { opacity: 1, y: 0,     duration: 0.9, ease: "expo.out"   }, 1.0);
+    tl.fromTo("#s1-divider",   { scaleX: 0, opacity: 0 },    { scaleX: 1, opacity: 1, duration: 0.4, ease: "power2.out"}, 1.65);
+    tl.fromTo("#s1-sub",       { opacity: 0, y: 28 },        { opacity: 1, y: 0,     duration: 0.7, ease: "power2.out" }, 1.85);
+    tl.fromTo("#s1-tag",       { opacity: 0, y: 18 },        { opacity: 1, y: 0,     duration: 0.5, ease: "power2.out" }, 2.2);
+    // ambient: glow breathe — starts after entrance ends at 1.9s; 1.3s×yoyo×1=2.6s, ends at 2.0+2.6=4.6 < 5.0 ✓
+    tl.to(".s1-glow-c", { scale: 1.07, duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: 1, overwrite: "auto" }, 2.0);
+
+    // ── TRANSITION 1→2: blur crossfade medium (T=5.0) ──
+    tl.to(  "#s1",  { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 5.0);
+    tl.fromTo("#s2", { filter: "blur(10px)", scale: 0.97, opacity: 0 },
+                     { filter: "blur(0px)",  scale: 1,    opacity: 1, duration: 0.5, ease: "power2.inOut" }, 5.1);
+
+    // ══════════════════════════════════════════════
+    // SCENE 2 — Processing Power (5.5–11.0s)
+    // ══════════════════════════════════════════════
+    var S2 = 5.6;
+    tl.fromTo(".s2-glow",    { scale: 0.70, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.4, ease: "power1.out"  }, S2);
+    tl.fromTo(".s2-grid",    { opacity: 0 },              { opacity: 1,           duration: 0.9, ease: "power1.out"  }, S2 + 0.1);
+    tl.fromTo(".s2-meta",    { opacity: 0 },              { opacity: 1,           duration: 0.4, ease: "power1.out"  }, S2 + 1.6);
+    tl.fromTo("#s2-eyebrow", { opacity: 0, x: -28 },      { opacity: 1, x: 0,     duration: 0.5, ease: "power3.out" }, S2 + 0.2);
+    tl.fromTo("#s2-heading", { opacity: 0, y: 48 },       { opacity: 1, y: 0,     duration: 0.8, ease: "expo.out"   }, S2 + 0.4);
+    tl.fromTo("#s2-divider", { scaleX: 0, opacity: 0 },   { scaleX: 1, opacity: 1, duration: 0.4, ease: "power2.out"}, S2 + 0.95);
+    tl.fromTo("#s2-body",    { opacity: 0, y: 24 },       { opacity: 1, y: 0,     duration: 0.6, ease: "power2.out" }, S2 + 1.15);
+    // core rows cascade from right, varied eases
+    tl.fromTo("#s2-r1", { opacity: 0, x: 48 }, { opacity: 1, x: 0, duration: 0.6, ease: "expo.out"    }, S2 + 0.5);
+    tl.fromTo("#s2-r2", { opacity: 0, x: 48 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out"  }, S2 + 0.75);
+    tl.fromTo("#s2-r3", { opacity: 0, x: 48 }, { opacity: 1, x: 0, duration: 0.6, ease: "power2.out"  }, S2 + 1.0);
+    // no ambient on .s2-grid — scale would overflow the clipping container
+
+    // ── TRANSITION 2→3: blur through heavy (T=11.0) — single tween avoids scale/opacity overlap ──
+    tl.to("#s2", { filter: "blur(30px)", scale: 1.08, opacity: 0, duration: 0.6, ease: "power1.in" }, 11.0);
+    tl.fromTo("#s3", { filter: "blur(30px)", scale: 0.92, opacity: 0 },
+                     { filter: "blur(30px)", scale: 0.92, opacity: 1, duration: 0.2, ease: "none" }, 11.6);
+    tl.to(  "#s3", { filter: "blur(0px)", scale: 1, duration: 0.7, ease: "power1.out" }, 11.8);
+
+    // ══════════════════════════════════════════════
+    // SCENE 3 — AI / NPU (11.8–17.0s)
+    // ══════════════════════════════════════════════
+    var S3 = 11.9;
+    tl.fromTo(".s3-glow-b",   { scale: 0.65, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.6, ease: "power1.out"   }, S3);
+    tl.fromTo(".s3-glow-g",   { scale: 0.65, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.8, ease: "power1.out"   }, S3 + 0.2);
+    tl.fromTo(".s3-ghost",    { opacity: 0, x: -44 },       { opacity: 1, x: 0,     duration: 2.0, ease: "power1.out"  }, S3);
+    tl.fromTo("#s3-eyebrow",  { opacity: 0, y: -20 },       { opacity: 1, y: 0,     duration: 0.5, ease: "power3.out"  }, S3 + 0.3);
+    // stat punches in — scale + opacity
+    tl.fromTo("#s3-stat",     { opacity: 0, scale: 0.68 },  { opacity: 1, scale: 1,  duration: 0.7, ease: "back.out(1.4)" }, S3 + 0.55);
+    tl.fromTo("#s3-rule",     { scaleX: 0, opacity: 0 },    { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.out"    }, S3 + 1.0);
+    tl.fromTo("#s3-label",    { opacity: 0, y: 24 },        { opacity: 1, y: 0,      duration: 0.55, ease: "expo.out"     }, S3 + 1.2);
+    tl.fromTo("#s3-sublabel", { opacity: 0, y: 20 },        { opacity: 1, y: 0,      duration: 0.5,  ease: "power2.out"   }, S3 + 1.55);
+    tl.fromTo("#s3-compare",  { opacity: 0, y: 22 },        { opacity: 1, y: 0,      duration: 0.5,  ease: "power2.out"   }, S3 + 1.9);
+    // ambient: stat gentle breathe — entrance ends at 13.15; 1.5s×yoyo×1=3.0s, ends at 13.8+3.0=16.8 < 17.0 ✓
+    tl.to("#s3-stat",  { scale: 1.04, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, S3 + 1.9);
+    tl.to(".s3-glow-g", { scale: 1.14, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, S3 + 0.6);
+
+    // ── TRANSITION 3→4: blur crossfade medium (T=17.0) ──
+    tl.to(  "#s3",  { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 17.0);
+    tl.fromTo("#s4", { filter: "blur(10px)", scale: 0.97, opacity: 0 },
+                     { filter: "blur(0px)",  scale: 1,    opacity: 1, duration: 0.5, ease: "power2.inOut" }, 17.1);
+
+    // ══════════════════════════════════════════════
+    // SCENE 4 — Security (17.5–22.5s)
+    // ══════════════════════════════════════════════
+    var S4 = 17.6;
+    tl.fromTo(".s4-glow",    { scale: 0.65, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.6, ease: "power1.out"  }, S4);
+    tl.fromTo("#s4-eyebrow", { opacity: 0, x: -28 },      { opacity: 1, x: 0,     duration: 0.5, ease: "power3.out" }, S4 + 0.2);
+    tl.fromTo("#s4-heading", { opacity: 0, y: 48 },       { opacity: 1, y: 0,     duration: 0.8, ease: "expo.out"   }, S4 + 0.4);
+    tl.fromTo("#s4-divider", { scaleX: 0, opacity: 0 },   { scaleX: 1, opacity: 1, duration: 0.4, ease: "power2.out"}, S4 + 0.95);
+    tl.fromTo("#s4-body",    { opacity: 0, y: 24 },       { opacity: 1, y: 0,     duration: 0.6, ease: "power2.out" }, S4 + 1.15);
+    // feature rows cascade, varied eases
+    tl.fromTo("#s4-f1", { opacity: 0, x: 38 }, { opacity: 1, x: 0, duration: 0.55, ease: "expo.out"    }, S4 + 0.55);
+    tl.fromTo("#s4-f2", { opacity: 0, x: 38 }, { opacity: 1, x: 0, duration: 0.55, ease: "power3.out"  }, S4 + 0.80);
+    tl.fromTo("#s4-f3", { opacity: 0, x: 38 }, { opacity: 1, x: 0, duration: 0.55, ease: "power2.out"  }, S4 + 1.05);
+    tl.fromTo("#s4-cra", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out"  }, S4 + 1.4);
+    // ambient: glow breathe — 1.8s × yoyo × 1 = 3.6s, ends at 18.1+3.6=21.7 < 22.5 ✓
+    tl.to(".s4-glow", { scale: 1.10, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: 1 }, S4 + 0.5);
+
+    // ── TRANSITION 4→5: blur crossfade medium (T=22.5) ──
+    tl.to(  "#s4",  { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 22.5);
+    tl.fromTo("#s5", { filter: "blur(10px)", scale: 0.97, opacity: 0 },
+                     { filter: "blur(0px)",  scale: 1,    opacity: 1, duration: 0.5, ease: "power2.inOut" }, 22.6);
+
+    // ══════════════════════════════════════════════
+    // SCENE 5 — Applications (23.0–28.0s)
+    // ══════════════════════════════════════════════
+    var S5 = 23.1;
+    tl.fromTo(".s5-glow",    { scale: 0.65, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.4, ease: "power1.out"  }, S5);
+    tl.fromTo("#s5-eyebrow", { opacity: 0, x: -28 },      { opacity: 1, x: 0,     duration: 0.5, ease: "power3.out" }, S5 + 0.2);
+    tl.fromTo("#s5-heading", { opacity: 0, y: 38 },       { opacity: 1, y: 0,     duration: 0.7, ease: "expo.out"   }, S5 + 0.4);
+    // cards stagger up, varied eases
+    tl.fromTo("#s5-c1", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, S5 + 0.75);
+    tl.fromTo("#s5-c2", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: 0.55, ease: "expo.out"   }, S5 + 0.95);
+    tl.fromTo("#s5-c3", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, S5 + 1.15);
+    tl.fromTo("#s5-c4", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, S5 + 1.35);
+
+    // ── TRANSITION 5→6: crossfade (T=28.0) ──
+    tl.to(  "#s5",  { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 28.0);
+    tl.fromTo("#s6", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 28.0);
+
+    // ══════════════════════════════════════════════
+    // SCENE 6 — CTA / Outro (28.5–33.0s)
+    // ══════════════════════════════════════════════
+    var S6 = 28.6;
+    tl.fromTo(".s6-glow-c",   { scale: 0.70, opacity: 0 }, { scale: 1, opacity: 1, duration: 2.0, ease: "power1.out" }, S6);
+    tl.fromTo(".s6-glow-in",  { scale: 0.50, opacity: 0 }, { scale: 1, opacity: 1, duration: 2.2, ease: "power1.out" }, S6 + 0.3);
+    tl.fromTo(".s6-rule-top", { scaleX: 0, opacity: 0 },   { scaleX: 1, opacity: 1, duration: 0.8, ease: "power2.out"}, S6 + 0.1);
+    tl.fromTo(".s6-rule-bot", { scaleX: 0, opacity: 0 },   { scaleX: 1, opacity: 1, duration: 0.8, ease: "expo.out"  }, S6 + 0.2);
+    tl.fromTo("#s6-eyebrow",  { opacity: 0, y: -18 },      { opacity: 1, y: 0,      duration: 0.5, ease: "power3.out"}, S6 + 0.3);
+    tl.fromTo("#s6-title",    { opacity: 0, y: 56 },       { opacity: 1, y: 0,      duration: 0.9, ease: "expo.out"  }, S6 + 0.5);
+    tl.fromTo("#s6-divider",  { scaleX: 0, opacity: 0 },   { scaleX: 1, opacity: 1, duration: 0.4, ease: "power2.out"}, S6 + 1.1);
+    tl.fromTo("#s6-sub",      { opacity: 0, y: 24 },       { opacity: 1, y: 0,      duration: 0.6, ease: "power2.out"}, S6 + 1.3);
+    tl.fromTo("#s6-brand",    { opacity: 0 },              { opacity: 1,            duration: 0.5, ease: "power1.out"}, S6 + 1.9);
+    tl.fromTo("#s6-url",      { opacity: 0 },              { opacity: 1,            duration: 0.5, ease: "power1.out"}, S6 + 2.2);
+    // ambient: glow breathe — entrance ends at 30.6; 1.1s×yoyo×1=2.2s, ends at 30.7+2.2=32.9 < 33.0 ✓
+    tl.to(".s6-glow-c", { scale: 1.07, duration: 1.1, ease: "sine.inOut", yoyo: true, repeat: 1 }, S6 + 2.2);
+    // final scene fade to black (only final scene exits)
+    tl.to("#s6", { opacity: 0, duration: 0.9, ease: "power1.in" }, 32.0);
+
+    window.__timelines["verdin-imx95"] = tl;
+  </script>
+</body>
 </html>
